@@ -15,81 +15,88 @@ document.addEventListener('DOMContentLoaded', function() {
         { prompt: 'python manage.py runserver', output: null }
     ];
 
-    let commandIndex = 0; // Current command index in the commands array
-    let charIndex = 0;    // Current character index within the command prompt
-    let currentLine = null; // Reference to the currently typing line
+    let commandIndex = 0;  // Track command index
+    let charIndex = 0;     // Track character typing index
+    let currentLine = null; // Track current line being typed
+    let firstCommandsExecuted = false;  // Flag to track first commands execution
 
     // Initialize the terminal by starting the first command
     function init() {
-        // Directly start typing the first command
         commandIndex = 0;
         typeCommand();
     }
-    
+
     function typeCommand() {
-        const currentCommand = commands[commandIndex]; // Get the current command
-    
-        // Create a new line only when necessary and ensure it's not created prematurely
+        const currentCommand = commands[commandIndex];
+
+        // Create a new line for command if necessary
         if (!currentLine) {
             currentLine = document.createElement('p');
             currentLine.className = 'terminal-line terminal-prompt';
             terminal.appendChild(currentLine);
         }
-    
+
         // Type characters one by one
         if (charIndex < currentCommand.prompt.length) {
             currentLine.textContent += currentCommand.prompt.charAt(charIndex);
             charIndex++;
-            setTimeout(typeCommand, 50); // Delay for typing effect
+            setTimeout(typeCommand, 50);  // Typing effect delay
         } else {
-            // Command fully typed, decide what to do next
+            // Command fully typed, handle next action
             if (currentCommand.output) {
-                setTimeout(() => showOutput(currentCommand.output), 500); // Show output if available
+                setTimeout(() => showOutput(currentCommand.output), 500);
             } else {
-                setTimeout(eraseCommand, 2000); // Erase the command if no output
+                setTimeout(eraseCommand, 2000);
             }
         }
     }
-    
 
-    // Function to display the output for a command
     function showOutput(output) {
         if (output) {
-            // Split the output's inner HTML into individual lines
+            // Split the output's inner HTML into lines and display them
             const outputLines = output.innerHTML.split('<p class="terminal-line">');
             outputLines.forEach(line => {
-                if (line.trim()) { // Ignore empty lines
+                if (line.trim()) {
                     const outputLine = document.createElement('p');
                     outputLine.className = 'terminal-line';
-                    outputLine.innerHTML = line.replace('</p>', ''); // Remove closing tag
-                    terminal.appendChild(outputLine); // Add line to the terminal
+                    outputLine.innerHTML = line.replace('</p>', '');
+                    terminal.appendChild(outputLine);
                 }
             });
         }
         commandIndex++; // Move to the next command
-        setTimeout(prepareNextCommand, 1000); // Prepare for the next command
+        setTimeout(prepareNextCommand, 1000);
     }
 
-    // Function to erase the current command character by character
     function eraseCommand() {
         if (charIndex > 0) {
-            currentLine.textContent = currentLine.textContent.slice(0, -1); // Remove last character
+            currentLine.textContent = currentLine.textContent.slice(0, -1);
             charIndex--;
-            setTimeout(eraseCommand, 30); // Delay for erase effect
+            setTimeout(eraseCommand, 30);
         } else {
-            currentLine.remove(); // Remove the line entirely
-            currentLine = null; // Reset the current line reference
-            commandIndex = (commandIndex + 1) % commands.length; // Move to the next command
-            setTimeout(typeCommand, 500); // Start typing the next command
+            currentLine.remove();
+            currentLine = null;
+            
+            if (!firstCommandsExecuted && commandIndex >= 2) {
+                firstCommandsExecuted = true;
+            }
+
+            // If first commands were executed, loop through the rest
+            if (firstCommandsExecuted) {
+                commandIndex = ((commandIndex - 2) % (commands.length - 2)) + 2;
+            } else {
+                commandIndex++;
+            }
+
+            setTimeout(typeCommand, 500);
         }
     }
 
-    // Prepare for the next command by resetting character index
     function prepareNextCommand() {
         charIndex = 0;
-        currentLine = null; // Reset the current line
-        typeCommand(); // Start typing the next command
+        currentLine = null;
+        typeCommand();
     }
 
-    init(); // Start the terminal simulation
+    init();
 });

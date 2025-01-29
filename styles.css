@@ -299,3 +299,34 @@ h2::after {
 .hidden {
     display: none;
 }
+
+
+
+.social-icons {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.social-icons a {
+    display: inline-block;
+    margin: 0 10px;
+    font-size: 24px;
+    color: #333;
+    transition: color 0.3s;
+}
+
+.social-icons a:hover {
+    color: #0077b5; /* LinkedIn blue */
+}
+
+/* Footer styles */
+footer {
+    margin-top: 50px;
+    padding: 20px;
+    text-align: center;
+    background-color: #f8f8f8;
+}
+
+footer p {
+    margin-bottom: 10px;
+}
